@@ -1,2 +1,1 @@
 # xpe_projeto_aplicado_cia_2026
-# xpe_projeto_aplicado_cia_2026
