@@ -409,7 +409,7 @@ Run `mcp__tiger__db_execute_query`:
 ```json
 {
   "service_id": "<SERVICE_ID>",
-  "query": "SELECT count(*) AS n FROM timescaledb_information.jobs WHERE proc_name IN ('policy_refresh_continuous_aggregate','policy_retention') AND hypertable_name LIKE '_materialized_hypertable_%';"
+  "query": "SELECT count(*) AS n FROM timescaledb_information.jobs WHERE proc_name IN ('policy_refresh_continuous_aggregate','policy_retention') AND hypertable_name LIKE 'sensor_reading_%';"
 }
 ```
 Expected: `n = 0`.
@@ -463,7 +463,7 @@ Run `mcp__tiger__db_execute_query`:
 ```json
 {
   "service_id": "<SERVICE_ID>",
-  "query": "SELECT proc_name, count(*) AS n FROM timescaledb_information.jobs WHERE proc_name IN ('policy_refresh_continuous_aggregate','policy_retention') AND hypertable_name LIKE '_materialized_hypertable_%' GROUP BY proc_name ORDER BY proc_name;"
+  "query": "SELECT proc_name, count(*) AS n FROM timescaledb_information.jobs WHERE proc_name IN ('policy_refresh_continuous_aggregate','policy_retention') AND hypertable_name LIKE 'sensor_reading_%' GROUP BY proc_name ORDER BY proc_name;"
 }
 ```
 Expected: `policy_refresh_continuous_aggregate` → 4, `policy_retention` → 4.
