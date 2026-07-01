@@ -24,3 +24,13 @@ Apply the SQL files in numeric order (each is safe on a fresh schema):
 
 See `docs/plans/2026-07-01-modelo-de-dados.md` for the per-object
 verification queries.
+
+## Status
+
+Complete — schema built and validated on service `h3bmabyk97` (TimescaleDB 2.27.2).
+
+Verified inventory: 1 hypertable (`sensor_reading`, 12h chunks), 4 continuous
+aggregates (1m/15m/30m/1h), 3 support views (`sensor_status`, `sensor_liveness`,
+`sensor_out_of_range_1h`), 30 sensors across 3 production lines. Compression after
+7 days, raw retention 90 days, aggregate retention 1 year. Behavioral smoke test
+passed (status classification, liveness detection, 1m aggregate avg=sum/count).
