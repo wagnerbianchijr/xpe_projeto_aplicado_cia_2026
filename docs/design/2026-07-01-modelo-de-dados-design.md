@@ -74,7 +74,7 @@ Seed: ~30 sensores (8 comuns + 2 específicos por linha).
 | `value` | double precision | valor lido |
 | `quality` | smallint DEFAULT 0 | flag de qualidade (0 = boa) |
 
-- Hypertable em `time`, `chunk_interval = 1 dia`.
+- Hypertable em `time`, `chunk_interval = 12 horas` (~180 chunks em 90 dias, ~259k linhas/chunk).
 - Índice: `(sensor_id, time DESC)`.
 - Compressão: `segmentby = sensor_id`, `orderby = time DESC`, após **7 dias**.
 - Retenção: drop de chunks raw após **90 dias**.
