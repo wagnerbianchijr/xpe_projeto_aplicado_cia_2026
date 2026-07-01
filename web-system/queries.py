@@ -1,6 +1,15 @@
 """Read-only query functions. Each takes a SupportsFetch and returns models."""
+from psycopg import sql
+
+from aggregates import pick_aggregate, value_expr
 from db import SupportsFetch
-from models import KpiSummary, LivenessRow, SensorStatusRow
+from models import (
+    KpiSummary,
+    LivenessRow,
+    SensorStatusRow,
+    TimeseriesPoint,
+    ViolationRow,
+)
 
 _STATUS_COUNTS_SQL = """
 SELECT
@@ -106,6 +115,59 @@ def failed_sensors(db: SupportsFetch, line_id: int | None = None) -> list[Livene
             last_time=r["last_time"],
             seconds_since_last=r["seconds_since_last"],
             is_failed=r["is_failed"],
+        )
+        for r in rows
+    ]
+
+
+_VIOLATIONS_SQL = """
+SELECT
+    bucket
+  , sensor_id
+  , line_id
+  , metric
+FROM sensor_out_of_range_1h
+WHERE violated
+  AND (%(line_id)s IS NULL OR line_id = %(line_id)s)
+  AND bucket >= now() - %(window)s::interval
+ORDER BY bucket DESC
+"""
+
+
+def timeseries(
+    db: SupportsFetch, sensor_id: int, metric: str, window_seconds: int
+) -> list[TimeseriesPoint]:
+    view = pick_aggregate(window_seconds)
+    query = sql.SQL(
+        """
+        SELECT
+            bucket AS time
+          , {value} AS value
+        FROM {view}
+        WHERE sensor_id = %(sensor_id)s
+          AND bucket >= now() - %(window)s::interval
+        ORDER BY bucket
+        """
+    ).format(value=value_expr(metric), view=sql.Identifier(view))
+    rows = db.fetch(
+        query, {"sensor_id": sensor_id, "window": f"{window_seconds} seconds"}
+    )
+    return [TimeseriesPoint(time=r["time"], value=r["value"]) for r in rows]
+
+
+def violations(
+    db: SupportsFetch, line_id: int | None, window_seconds: int
+) -> list[ViolationRow]:
+    rows = db.fetch(
+        _VIOLATIONS_SQL,
+        {"line_id": line_id, "window": f"{window_seconds} seconds"},
+    )
+    return [
+        ViolationRow(
+            bucket=r["bucket"],
+            sensor_id=r["sensor_id"],
+            line_id=r["line_id"],
+            metric=r["metric"],
         )
         for r in rows
     ]
