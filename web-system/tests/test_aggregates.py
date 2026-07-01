@@ -1,4 +1,4 @@
-from selectors import pick_aggregate, value_expr
+from aggregates import pick_aggregate, value_expr
 
 
 def test_pick_aggregate_boundaries():
