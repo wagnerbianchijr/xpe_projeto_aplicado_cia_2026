@@ -310,16 +310,18 @@ git commit -m "web-system: read-only db pool, fetch helper, fake"
 
 ### Task 3: Aggregate/metric selectors + models
 
+> **Module name — do NOT use `selectors.py`.** The real `psycopg` library imports the stdlib `selectors` module (`psycopg/waiting.py`). With `pythonpath = .`, a local `selectors.py` shadows it and breaks psycopg with a circular-import `AttributeError`. Name this module `aggregates.py`.
+
 **Files:**
-- Create: `web-system/selectors.py`
+- Create: `web-system/aggregates.py`
 - Create: `web-system/models.py`
-- Test: `web-system/tests/test_selectors.py`
+- Test: `web-system/tests/test_aggregates.py`
 
 **Interfaces:**
 - Consumes: nothing.
 - Produces:
-  - `selectors.pick_aggregate(window_seconds: int) -> str` — returns a view name.
-  - `selectors.value_expr(metric: str) -> psycopg.sql.Composable` — SQL expression for the metric's value column.
+  - `aggregates.pick_aggregate(window_seconds: int) -> str` — returns a view name.
+  - `aggregates.value_expr(metric: str) -> psycopg.sql.Composable` — SQL expression for the metric's value column.
   - `models.KpiSummary(ok, alerta, sem_dados, failed, lines, production_today)`.
   - `models.SensorStatusRow(sensor_id, line_id, line_name, metric, unit, value, last_time, status)`.
   - `models.LivenessRow(sensor_id, line_id, metric, last_time, seconds_since_last, is_failed)`.
@@ -329,9 +331,9 @@ git commit -m "web-system: read-only db pool, fetch helper, fake"
 
 - [ ] **Step 1: Write the failing test**
 
-`web-system/tests/test_selectors.py`:
+`web-system/tests/test_aggregates.py`:
 ```python
-from selectors import pick_aggregate, value_expr
+from aggregates import pick_aggregate, value_expr
 
 
 def test_pick_aggregate_boundaries():
@@ -353,16 +355,14 @@ def test_value_expr_throughput_for_production_count():
     assert value_expr("production_count").as_string(None) == "max_value - min_value"
 ```
 
-Note: `selectors` is a stdlib module name; `pythonpath = .` in `pytest.ini` puts the local file first, so the local module wins. Keep the local filename `selectors.py`.
-
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `cd web-system && ./.venv/bin/python -m pytest tests/test_selectors.py -v`
-Expected: FAIL — `ImportError: cannot import name 'pick_aggregate'`.
+Run: `cd web-system && ./.venv/bin/python -m pytest tests/test_aggregates.py -v`
+Expected: FAIL — `ModuleNotFoundError: No module named 'aggregates'`.
 
 - [ ] **Step 3: Write minimal implementation**
 
-`web-system/selectors.py`:
+`web-system/aggregates.py`:
 ```python
 """Pure selectors: window -> aggregate view, and metric -> value expression."""
 from psycopg import sql
@@ -452,13 +452,13 @@ class SensorMeta:
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `cd web-system && ./.venv/bin/python -m pytest tests/test_selectors.py -v`
+Run: `cd web-system && ./.venv/bin/python -m pytest tests/test_aggregates.py -v`
 Expected: PASS (3 tests).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add web-system/selectors.py web-system/models.py web-system/tests/test_selectors.py
+git add web-system/aggregates.py web-system/models.py web-system/tests/test_aggregates.py
 git commit -m "web-system: aggregate/metric selectors and row models"
 ```
 
@@ -730,7 +730,7 @@ git commit -m "web-system: operational status and liveness queries"
 - Test: `web-system/tests/test_queries_performance.py`
 
 **Interfaces:**
-- Consumes: `db.SupportsFetch`, `selectors.pick_aggregate`, `selectors.value_expr`, `models.TimeseriesPoint`, `models.ViolationRow`.
+- Consumes: `db.SupportsFetch`, `aggregates.pick_aggregate`, `aggregates.value_expr`, `models.TimeseriesPoint`, `models.ViolationRow`.
 - Produces:
   - `queries.timeseries(db, sensor_id: int, metric: str, window_seconds: int) -> list[TimeseriesPoint]`.
   - `queries.violations(db, line_id: int | None, window_seconds: int) -> list[ViolationRow]`.
@@ -788,7 +788,7 @@ Append to `web-system/queries.py`:
 from psycopg import sql
 
 from models import TimeseriesPoint, ViolationRow
-from selectors import pick_aggregate, value_expr
+from aggregates import pick_aggregate, value_expr
 
 _VIOLATIONS_SQL = """
 SELECT
@@ -1850,14 +1850,14 @@ ao Tiger Cloud, provisionado pelo `terraform`):
 
 `config.py` (env) → `db.py` (pool read-only + `fetch`) → `queries.py`
 (SQL puro por indicador) → `app.py` (rotas FastAPI, páginas Jinja2 + fragmentos
-HTMX + JSON p/ Chart.js). `selectors.py` escolhe o agregado por janela e a
+HTMX + JSON p/ Chart.js). `aggregates.py` escolhe o agregado por janela e a
 expressão de valor por métrica. `models.py` tipa os retornos.
 ```
 
 - [ ] **Step 4: Run the full suite**
 
 Run: `cd web-system && ./.venv/bin/python -m pytest -v`
-Expected: PASS — all tests across `test_config`, `test_db`, `test_selectors`, `test_queries_*`, `test_app_*`.
+Expected: PASS — all tests across `test_config`, `test_db`, `test_aggregates`, `test_queries_*`, `test_app_*`.
 
 - [ ] **Step 5: Update root the project guidance file**
 
