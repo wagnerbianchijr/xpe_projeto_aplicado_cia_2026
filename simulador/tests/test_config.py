@@ -38,3 +38,19 @@ def test_missing_database_url_raises(monkeypatch):
     monkeypatch.delenv("DATABASE_URL", raising=False)
     with pytest.raises(RuntimeError):
         load_settings(load_env=False)
+
+
+@pytest.mark.parametrize("var", ["P_ANOMALY", "P_DROPOUT"])
+@pytest.mark.parametrize("bad", ["-0.1", "1.5", "2"])
+def test_probabilities_out_of_range_raise(monkeypatch, var, bad):
+    monkeypatch.setenv("DATABASE_URL", "postgresql://x")
+    monkeypatch.setenv(var, bad)
+    with pytest.raises(ValueError):
+        load_settings(load_env=False)
+
+
+def test_non_positive_tick_seconds_raises(monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", "postgresql://x")
+    monkeypatch.setenv("TICK_SECONDS", "0")
+    with pytest.raises(ValueError):
+        load_settings(load_env=False)

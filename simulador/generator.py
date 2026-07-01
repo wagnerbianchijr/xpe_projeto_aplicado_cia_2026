@@ -73,8 +73,9 @@ class Generator:
                 state.dropout_until = now + timedelta(seconds=secs)
                 continue
 
-            # 3. Monotonic counter (production_count) ignores the random walk.
-            if spec.metric == COUNTER_METRIC:
+            # 3. Monotonic counter (production_count) or any sensor without a
+            #    numeric range: ignore the random walk, emit a running counter.
+            if spec.metric == COUNTER_METRIC or spec.min_limit is None or spec.max_limit is None:
                 state.counter += self._rng.randint(1, 8)
                 readings.append(Reading(now, spec.sensor_id, state.counter))
                 continue

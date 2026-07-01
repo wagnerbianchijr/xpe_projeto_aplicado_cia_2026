@@ -31,10 +31,22 @@ def load_settings(load_env: bool = True) -> Settings:
         )
 
     seed_raw = os.environ.get("SEED")
+    tick_seconds = float(os.environ.get("TICK_SECONDS", "5"))
+    if tick_seconds <= 0:
+        raise ValueError(f"TICK_SECONDS must be > 0, got {tick_seconds}")
+
     return Settings(
         database_url=database_url,
-        tick_seconds=float(os.environ.get("TICK_SECONDS", "5")),
+        tick_seconds=tick_seconds,
         seed=int(seed_raw) if seed_raw else None,
-        p_anomaly=float(os.environ.get("P_ANOMALY", "0.005")),
-        p_dropout=float(os.environ.get("P_DROPOUT", "0.002")),
+        p_anomaly=_probability("P_ANOMALY", "0.005"),
+        p_dropout=_probability("P_DROPOUT", "0.002"),
     )
+
+
+def _probability(name: str, default: str) -> float:
+    """Parse an env var as a probability in [0, 1]; reject anything else."""
+    value = float(os.environ.get(name, default))
+    if not 0.0 <= value <= 1.0:
+        raise ValueError(f"{name} must be a probability in [0, 1], got {value}")
+    return value

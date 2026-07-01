@@ -62,7 +62,7 @@ def main() -> int:
         readings = generator.tick(now)
         try:
             written = insert_readings(conn, readings)
-        except psycopg.OperationalError as error:
+        except (psycopg.OperationalError, psycopg.InterfaceError) as error:
             print(f"db error: {error}; reconnecting...", file=sys.stderr)
             conn = _reconnect(settings.database_url)
             continue
