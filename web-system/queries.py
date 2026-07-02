@@ -6,6 +6,7 @@ from db import SupportsFetch
 from models import (
     KpiSummary,
     LivenessRow,
+    SensorMeta,
     SensorStatusRow,
     TimeseriesPoint,
     ViolationRow,
@@ -171,3 +172,33 @@ def violations(
         )
         for r in rows
     ]
+
+
+_SENSOR_META_SQL = """
+SELECT
+    sensor_id
+  , line_id
+  , metric
+  , unit
+  , min_limit
+  , max_limit
+  , description
+FROM sensor
+WHERE sensor_id = %(sensor_id)s
+"""
+
+
+def sensor_meta(db: SupportsFetch, sensor_id: int) -> SensorMeta | None:
+    rows = db.fetch(_SENSOR_META_SQL, {"sensor_id": sensor_id})
+    if not rows:
+        return None
+    r = rows[0]
+    return SensorMeta(
+        sensor_id=r["sensor_id"],
+        line_id=r["line_id"],
+        metric=r["metric"],
+        unit=r["unit"],
+        min_limit=r["min_limit"],
+        max_limit=r["max_limit"],
+        description=r["description"],
+    )
