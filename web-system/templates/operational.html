@@ -12,7 +12,7 @@
   </select>
 </div>
 <div id="op-table"
-     hx-get="/api/operational" hx-trigger="load, every {{ refresh_seconds }}s"
+     hx-get="/api/operational" hx-trigger="load, refresh-tick from:body"
      hx-include="#line" hx-swap="innerHTML">
   <p class="muted">Carregando…</p>
 </div>

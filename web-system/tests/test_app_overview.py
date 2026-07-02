@@ -20,7 +20,11 @@ def test_overview_page_renders_nav_and_kpi_container():
     body = resp.text
     assert "Serra Clara" in body
     assert "/api/kpis" in body
-    assert "every 7s" in body
+    # KPIs refresh via the global refresh-tick event, not a hardcoded interval
+    assert "refresh-tick from:body" in body
+    # the refresh selector carries the configured default
+    assert 'id="refresh-rate"' in body
+    assert 'data-default="7"' in body
 
 
 def test_kpis_partial_renders_counts():

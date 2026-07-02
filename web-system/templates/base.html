@@ -10,20 +10,34 @@
 </head>
 <body>
   <header class="topbar">
-    <h1>Serra Clara Bebidas — Painel IIoT</h1>
-    <nav>
-      <a href="/" class="{{ 'on' if active == 'overview' else '' }}">Visão geral</a>
-      <a href="/operational" class="{{ 'on' if active == 'operational' else '' }}">Operational Hub</a>
-      <a href="/performance" class="{{ 'on' if active == 'performance' else '' }}">Performance Insights</a>
-    </nav>
+    <div class="topbar-main">
+      <h1>Serra Clara Bebidas — Painel IIoT</h1>
+      <nav>
+        <a href="/" class="{{ 'on' if active == 'overview' else '' }}">Visão geral</a>
+        <a href="/operational" class="{{ 'on' if active == 'operational' else '' }}">Operational Hub</a>
+        <a href="/performance" class="{{ 'on' if active == 'performance' else '' }}">Performance Insights</a>
+      </nav>
+    </div>
+    <div class="refresh-control">
+      <label for="refresh-rate">Atualização:</label>
+      <select id="refresh-rate" data-default="{{ refresh_seconds }}">
+        <option value="0">Off</option>
+        <option value="5">5s</option>
+        <option value="10">10s</option>
+        <option value="30">30s</option>
+        <option value="60">60s</option>
+      </select>
+    </div>
   </header>
 
-  <section id="kpis" hx-get="/api/kpis" hx-trigger="load, every {{ refresh_seconds }}s" hx-swap="innerHTML">
+  <section id="kpis" hx-get="/api/kpis" hx-trigger="load, refresh-tick from:body" hx-swap="innerHTML">
     <p class="muted">Carregando indicadores…</p>
   </section>
 
   <main>
     {% block content %}{% endblock %}
   </main>
+
+  <script src="/static/refresh.js"></script>
 </body>
 </html>

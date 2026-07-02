@@ -1,8 +1,10 @@
 :root { --bg:#0f1720; --card:#182534; --ink:#e6edf3; --mut:#8b98a5; --ok:#2ea043; --warn:#d29922; --bad:#f85149; --accent:#f0883e; }
 * { box-sizing: border-box; }
 body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui, sans-serif; }
-.topbar { padding:16px 24px; background:#0b1219; border-bottom:1px solid #223; }
+.topbar { padding:16px 24px; background:#0b1219; border-bottom:1px solid #223; display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
 .topbar h1 { font-size:18px; margin:0 0 8px; }
+.refresh-control { display:flex; align-items:center; gap:8px; color:var(--mut); font-size:13px; white-space:nowrap; }
+.refresh-control select { background:var(--card); color:var(--ink); border:1px solid #223; border-radius:8px; padding:4px 8px; }
 nav a { color:var(--mut); text-decoration:none; margin-right:16px; padding-bottom:4px; }
 nav a.on { color:var(--accent); border-bottom:2px solid var(--accent); }
 main, #kpis { padding:16px 24px; }
