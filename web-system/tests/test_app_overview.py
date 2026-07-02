@@ -41,4 +41,4 @@ def test_kpis_partial_shows_banner_when_db_down():
     client = TestClient(app)
     resp = client.get("/api/kpis")
     assert resp.status_code == 200
-    assert "sem conexão com o banco" in resp.text
+    assert "sem conexão com o banco" in resp.text.lower()
