@@ -8,5 +8,9 @@
   <div class="kpi bad"><span class="n">{{ kpi.failed }}</span><span class="l">Sensores falhos</span></div>
   <div class="kpi"><span class="n">{{ kpi.lines }}</span><span class="l">Linhas</span></div>
   <div class="kpi"><span class="n">{{ "%.0f"|format(kpi.production_today) }}</span><span class="l">Produção hoje</span></div>
+  <div class="kpi"><span class="n">{{ "{:,}".format(kpi.total_records).replace(",", ".") }}</span><span class="l">Registros no banco</span></div>
+  {% for line in kpi.records_by_line %}
+  <div class="kpi"><span class="n">{{ "{:,}".format(line.count).replace(",", ".") }}</span><span class="l">Registros · {{ line.line_name }}</span></div>
+  {% endfor %}
 </div>
 {% endif %}

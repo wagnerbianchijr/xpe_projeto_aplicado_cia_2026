@@ -57,3 +57,8 @@ def test_violations_executes_without_line_filter(db):
 def test_timeseries_executes(db):
     rows = queries.timeseries(db, 101, "temperature", 3600)
     assert isinstance(rows, list)
+
+
+def test_failing_sensors_executes(db):
+    rows = queries.failing_sensors(db)
+    assert isinstance(rows, list)

@@ -1,0 +1,19 @@
+<button type="button" class="bell{% if alerts %} has-alerts{% endif %}"
+        onclick="this.closest('.alerts').classList.toggle('open')"
+        aria-label="Alertas de sensores com falha">
+  🔔{% if alerts %}<span class="badge">{{ alerts|length }}</span>{% endif %}
+</button>
+<div class="alerts-panel">
+  {% if db_error %}
+  <p class="muted">Sem conexão com o banco.</p>
+  {% elif alerts %}
+  <p class="alerts-title">{{ alerts|length }} sensor(es) com falha</p>
+  <ul>
+    {% for a in alerts %}
+    <li>Sensor {{ a.sensor_id }} ({{ a.metric }}) da {{ a.line_name }} está com falha.</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="muted">Nenhum sensor com falha.</p>
+  {% endif %}
+</div>

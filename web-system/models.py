@@ -4,6 +4,21 @@ from datetime import datetime
 
 
 @dataclass
+class LineRecordCount:
+    line_id: int
+    line_name: str
+    count: int
+
+
+@dataclass
+class FailingSensor:
+    sensor_id: int
+    line_id: int
+    line_name: str
+    metric: str
+
+
+@dataclass
 class KpiSummary:
     ok: int
     alerta: int
@@ -11,6 +26,8 @@ class KpiSummary:
     failed: int
     lines: int
     production_today: float
+    total_records: int
+    records_by_line: list[LineRecordCount]
 
 
 @dataclass

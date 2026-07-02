@@ -18,15 +18,19 @@
         <a href="/performance" class="{{ 'on' if active == 'performance' else '' }}">Performance Insights</a>
       </nav>
     </div>
-    <div class="refresh-control">
-      <label for="refresh-rate">Atualização:</label>
-      <select id="refresh-rate" data-default="{{ refresh_seconds }}">
-        <option value="0">Off</option>
-        <option value="5">5s</option>
-        <option value="10">10s</option>
-        <option value="30">30s</option>
-        <option value="60">60s</option>
-      </select>
+    <div class="topbar-tools">
+      <div id="alerts" class="alerts"
+           hx-get="/api/alerts" hx-trigger="load, refresh-tick from:body" hx-swap="innerHTML"></div>
+      <div class="refresh-control">
+        <label for="refresh-rate">Atualização:</label>
+        <select id="refresh-rate" data-default="{{ refresh_seconds }}">
+          <option value="0">Off</option>
+          <option value="5">5s</option>
+          <option value="10">10s</option>
+          <option value="30">30s</option>
+          <option value="60">60s</option>
+        </select>
+      </div>
     </div>
   </header>
 

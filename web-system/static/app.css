@@ -5,6 +5,16 @@ body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui
 .topbar h1 { font-size:18px; margin:0 0 8px; }
 .refresh-control { display:flex; align-items:center; gap:8px; color:var(--mut); font-size:13px; white-space:nowrap; }
 .refresh-control select { background:var(--card); color:var(--ink); border:1px solid #223; border-radius:8px; padding:4px 8px; }
+.topbar-tools { display:flex; align-items:center; gap:16px; }
+.alerts { position:relative; }
+.bell { position:relative; background:var(--card); color:var(--ink); border:1px solid #223; border-radius:8px; padding:5px 9px; font-size:16px; cursor:pointer; line-height:1; }
+.bell.has-alerts { border-color:var(--bad); }
+.bell .badge { position:absolute; top:-7px; right:-7px; background:var(--bad); color:#fff; font-size:11px; font-weight:700; min-width:17px; height:17px; border-radius:999px; display:flex; align-items:center; justify-content:center; padding:0 4px; }
+.alerts-panel { display:none; position:absolute; right:0; top:calc(100% + 8px); width:320px; max-height:60vh; overflow:auto; background:var(--card); border:1px solid #223; border-radius:10px; padding:12px 14px; z-index:20; box-shadow:0 8px 24px rgba(0,0,0,.4); }
+.alerts.open .alerts-panel { display:block; }
+.alerts-panel .alerts-title { color:var(--bad); font-weight:600; margin:0 0 8px; font-size:13px; }
+.alerts-panel ul { margin:0; padding-left:18px; }
+.alerts-panel li { font-size:13px; margin-bottom:6px; }
 nav a { color:var(--mut); text-decoration:none; margin-right:16px; padding-bottom:4px; }
 nav a.on { color:var(--accent); border-bottom:2px solid var(--accent); }
 main, #kpis { padding:16px 24px; }

@@ -4,7 +4,9 @@ from psycopg import sql
 from aggregates import pick_aggregate, value_expr
 from db import SupportsFetch
 from models import (
+    FailingSensor,
     KpiSummary,
+    LineRecordCount,
     LivenessRow,
     SensorMeta,
     SensorStatusRow,
@@ -44,10 +46,31 @@ SELECT
 """
 
 
+_RECORD_COUNTS_SQL = """
+SELECT
+    pl.line_id
+  , pl.name              AS line_name
+  , count(r.*)           AS records
+FROM production_line pl
+LEFT JOIN sensor s        ON s.line_id = pl.line_id
+LEFT JOIN sensor_reading r ON r.sensor_id = s.sensor_id
+GROUP BY pl.line_id, pl.name
+ORDER BY pl.line_id
+"""
+
+
 def kpis(db: SupportsFetch) -> KpiSummary:
     counts = db.fetch(_STATUS_COUNTS_SQL)[0]
     failed = db.fetch(_FAILED_COUNT_SQL)[0]
     totals = db.fetch(_LINES_AND_PRODUCTION_SQL)[0]
+    record_rows = db.fetch(_RECORD_COUNTS_SQL)
+    records_by_line = [
+        LineRecordCount(
+            line_id=r["line_id"], line_name=r["line_name"], count=r["records"]
+        )
+        for r in record_rows
+    ]
+    total_records = sum(rec.count for rec in records_by_line)
     return KpiSummary(
         ok=counts["ok"],
         alerta=counts["alerta"],
@@ -55,6 +78,8 @@ def kpis(db: SupportsFetch) -> KpiSummary:
         failed=failed["failed"],
         lines=totals["lines"],
         production_today=float(totals["production_today"] or 0.0),
+        total_records=total_records,
+        records_by_line=records_by_line,
     )
 
 
@@ -202,3 +227,29 @@ def sensor_meta(db: SupportsFetch, sensor_id: int) -> SensorMeta | None:
         max_limit=r["max_limit"],
         description=r["description"],
     )
+
+
+_FAILING_SENSORS_SQL = """
+SELECT
+    sl.sensor_id
+  , sl.line_id
+  , pl.name AS line_name
+  , sl.metric
+FROM sensor_liveness sl
+JOIN production_line pl ON pl.line_id = sl.line_id
+WHERE sl.is_failed
+ORDER BY sl.line_id, sl.sensor_id
+"""
+
+
+def failing_sensors(db: SupportsFetch) -> list[FailingSensor]:
+    rows = db.fetch(_FAILING_SENSORS_SQL)
+    return [
+        FailingSensor(
+            sensor_id=r["sensor_id"],
+            line_id=r["line_id"],
+            line_name=r["line_name"],
+            metric=r["metric"],
+        )
+        for r in rows
+    ]

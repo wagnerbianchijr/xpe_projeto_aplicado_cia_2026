@@ -10,6 +10,7 @@ from fastapi.templating import Jinja2Templates
 from db import SupportsFetch
 from queries import (
     failed_sensors,
+    failing_sensors,
     kpis,
     sensor_meta,
     sensor_status,
@@ -58,6 +59,14 @@ def create_app(db: SupportsFetch, refresh_seconds: int = 5) -> FastAPI:
         data = safe(flag, lambda: kpis(db), None)
         return _TEMPLATES.TemplateResponse(
             request, "partials/kpis.html", ctx(request, kpi=data, db_error=flag.failed)
+        )
+
+    @app.get("/api/alerts", response_class=HTMLResponse)
+    def api_alerts(request: Request):
+        flag = _DbError()
+        alerts = safe(flag, lambda: failing_sensors(db), [])
+        return _TEMPLATES.TemplateResponse(
+            request, "partials/alerts.html", ctx(request, alerts=alerts, db_error=flag.failed)
         )
 
     def _line_id(value: str | None) -> int | None:

@@ -9,6 +9,11 @@ def _kpi_responses():
         [{"ok": 25, "alerta": 3, "sem_dados": 2}],
         [{"failed": 1}],
         [{"lines": 3, "production_today": 1234.5}],
+        [
+            {"line_id": 1, "line_name": "Linha Sucos 01", "records": 500},
+            {"line_id": 2, "line_name": "Linha Águas Saborizadas 01", "records": 300},
+            {"line_id": 3, "line_name": "Linha Chás Gelados 01", "records": 200},
+        ],
     ]
 
 
@@ -34,6 +39,10 @@ def test_kpis_partial_renders_counts():
     assert resp.status_code == 200
     assert "25" in resp.text
     assert "1234" in resp.text
+    # total records (500+300+200 = 1000 -> "1.000") and per-line tiles
+    assert "1.000" in resp.text
+    assert "Registros no banco" in resp.text
+    assert "Registros · Linha Sucos 01" in resp.text
 
 
 def test_kpis_partial_shows_banner_when_db_down():
