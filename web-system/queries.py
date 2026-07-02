@@ -1,4 +1,4 @@
-"""Read-only query functions. Each takes a SupportsFetch and returns models."""
+"""Funções de consulta somente leitura. Cada uma recebe um SupportsFetch e retorna models."""
 from psycopg import sql
 
 from aggregates import pick_aggregate, value_expr

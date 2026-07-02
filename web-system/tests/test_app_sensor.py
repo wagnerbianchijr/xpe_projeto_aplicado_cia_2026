@@ -41,7 +41,7 @@ def test_sensor_detail_renders_meta_and_chart():
     assert resp.status_code == 200
     body = resp.text
     assert "temperature" in body
-    assert "70" in body and "95" in body      # limits shown
+    assert "70" in body and "95" in body      # limites exibidos
     assert "/api/timeseries?sensor_id=101" in body
 
 

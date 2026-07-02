@@ -1,4 +1,4 @@
-"""ASGI entry point. `uvicorn main:app` serves the dashboard."""
+"""Ponto de entrada ASGI. `uvicorn main:app` serve o dashboard."""
 from app import create_app
 from config import load_settings
 from db import Database, create_pool

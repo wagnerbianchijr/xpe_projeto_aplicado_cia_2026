@@ -1,4 +1,4 @@
-"""FastAPI app factory for the Serra Clara IIoT dashboard."""
+"""Fábrica do app FastAPI para o dashboard IIoT da Serra Clara."""
 from pathlib import Path
 from typing import Any, Callable
 
@@ -22,14 +22,14 @@ _TEMPLATES = Jinja2Templates(directory=str(_BASE / "templates"))
 
 
 class _DbError:
-    """Mutable flag threaded into a template render."""
+    """Flag mutável repassada para a renderização de um template."""
 
     def __init__(self) -> None:
         self.failed = False
 
 
 def safe(flag: "_DbError", fn: Callable[[], Any], default: Any) -> Any:
-    """Run a query; on any failure set the error flag and return default."""
+    """Executa uma consulta; em caso de falha, define a flag de erro e retorna o default."""
     try:
         return fn()
     except Exception:

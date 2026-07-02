@@ -1,4 +1,4 @@
-"""Configuration loaded from environment (.env is git-ignored)."""
+"""Configuração carregada do ambiente (.env é ignorado pelo git)."""
 from dataclasses import dataclass
 import os
 
@@ -14,10 +14,10 @@ class Settings:
 
 
 def load_settings(load_env: bool = True) -> Settings:
-    """Build Settings from environment variables.
+    """Constrói Settings a partir de variáveis de ambiente.
 
-    When load_env is True, values are first loaded from a local .env file.
-    Tests pass load_env=False so a developer's .env cannot leak into results.
+    Quando load_env é True, os valores são primeiro carregados de um arquivo .env local.
+    Os testes passam load_env=False para que o .env de um desenvolvedor não vaze para os resultados.
     """
     if load_env:
         load_dotenv()

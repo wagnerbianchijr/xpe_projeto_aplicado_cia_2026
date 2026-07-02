@@ -8,7 +8,7 @@ T = datetime(2026, 7, 1, 12, 0, tzinfo=timezone.utc)
 
 
 class FakeByCall:
-    """Returns responses keyed by SQL substring so route order is irrelevant."""
+    """Retorna respostas indexadas por substring do SQL, então a ordem das rotas é irrelevante."""
 
     def __init__(self, mapping):
         self.mapping = mapping
@@ -34,7 +34,7 @@ def _db():
             "sensor_id": 205, "line_id": 2, "metric": "line_speed",
             "last_time": None, "seconds_since_last": None, "is_failed": True,
         }],
-        # KPI header queries (base layout triggers them on load):
+        # Consultas do cabeçalho de KPI (o layout base as dispara ao carregar):
         "FROM sensor_status\n": [{"ok": 1, "alerta": 0, "sem_dados": 0}],
         "FROM sensor_liveness\n": [{"failed": 1}],
         "production_today": [{"lines": 3, "production_today": 0}],
@@ -56,7 +56,7 @@ def test_operational_table_partial_lists_status_and_failed():
     body = resp.text
     assert "temperature" in body
     assert "normal" in body
-    assert "line_speed" in body  # failed sensor listed
+    assert "line_speed" in body  # sensor com falha listado
 
 
 def test_operational_table_shows_banner_when_db_down():

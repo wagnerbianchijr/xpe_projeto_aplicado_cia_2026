@@ -1,4 +1,4 @@
-"""Typed rows returned by the query layer."""
+"""Linhas tipadas retornadas pela camada de consultas."""
 from dataclasses import dataclass
 from datetime import datetime
 

@@ -1,4 +1,4 @@
-"""Read-only Tiger Cloud access: connection pool + a thin fetch helper."""
+"""Acesso somente leitura ao Tiger Cloud: pool de conexões + um helper leve de busca."""
 from typing import Any, Protocol
 
 from psycopg.rows import dict_row
@@ -6,13 +6,13 @@ from psycopg_pool import ConnectionPool
 
 
 def configure(conn) -> None:
-    """Pool configure callback: force read-only + dict rows on every connection."""
+    """Callback de configuração do pool: força somente leitura + linhas em dict em toda conexão."""
     conn.read_only = True
     conn.row_factory = dict_row
 
 
 def create_pool(database_url: str) -> ConnectionPool:
-    """Open a small read-only pool. connect_timeout keeps startup from hanging."""
+    """Abre um pool pequeno e somente leitura. connect_timeout evita que a inicialização trave."""
     return ConnectionPool(
         database_url,
         min_size=1,
@@ -28,7 +28,7 @@ class SupportsFetch(Protocol):
 
 
 class Database:
-    """Executes read-only queries against a pooled connection."""
+    """Executa consultas somente leitura em uma conexão do pool."""
 
     def __init__(self, pool: ConnectionPool) -> None:
         self._pool = pool
@@ -40,7 +40,7 @@ class Database:
 
 
 class FakeDatabase:
-    """Test double: returns canned responses in call order."""
+    """Dublê de teste: retorna respostas pré-definidas na ordem das chamadas."""
 
     def __init__(self, responses: list[list[dict]]) -> None:
         self._responses = list(responses)

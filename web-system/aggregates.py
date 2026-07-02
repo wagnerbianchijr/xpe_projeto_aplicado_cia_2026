@@ -1,9 +1,9 @@
-"""Pure selectors: window -> aggregate view, and metric -> value expression."""
+"""Seletores puros: janela -> view agregada, e métrica -> expressão de valor."""
 from psycopg import sql
 
 
 def pick_aggregate(window_seconds: int) -> str:
-    """Choose the coarsest aggregate that still covers the window well."""
+    """Escolhe a agregação mais grossa que ainda cobre bem a janela."""
     if window_seconds <= 3600:
         return "sensor_reading_1m"
     if window_seconds <= 6 * 3600:
@@ -14,7 +14,7 @@ def pick_aggregate(window_seconds: int) -> str:
 
 
 def value_expr(metric: str) -> sql.Composable:
-    """Value column for a metric: throughput for counters, average otherwise."""
+    """Coluna de valor para uma métrica: vazão para contadores, média nos demais casos."""
     if metric == "production_count":
         return sql.SQL("max_value - min_value")
     return sql.SQL("sum_value / nullif(count_value, 0)")
