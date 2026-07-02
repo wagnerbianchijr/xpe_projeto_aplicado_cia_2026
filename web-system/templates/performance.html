@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="controls">
+  <label for="sensor">Sensor:</label>
+  <select id="sensor">
+    <optgroup label="Linha Sucos 01">
+      <option value="101">101 · temperature</option>
+      <option value="102">102 · pressure</option>
+      <option value="103">103 · flow</option>
+      <option value="105">105 · line_speed</option>
+      <option value="106">106 · production_count</option>
+      <option value="109">109 · brix</option>
+    </optgroup>
+    <optgroup label="Linha Águas Saborizadas 01">
+      <option value="201">201 · temperature</option>
+      <option value="206">206 · production_count</option>
+      <option value="209">209 · co2</option>
+    </optgroup>
+    <optgroup label="Linha Chás Gelados 01">
+      <option value="301">301 · temperature</option>
+      <option value="306">306 · production_count</option>
+      <option value="309">309 · infusion_temp</option>
+    </optgroup>
+  </select>
+  <label for="window">Janela:</label>
+  <select id="window">
+    <option value="3600">1 hora</option>
+    <option value="21600">6 horas</option>
+    <option value="86400" selected>24 horas</option>
+    <option value="604800">7 dias</option>
+  </select>
+</div>
+<canvas id="chart" height="120"></canvas>
+<script src="/static/charts.js"></script>
+{% endblock %}

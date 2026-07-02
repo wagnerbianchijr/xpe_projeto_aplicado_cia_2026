@@ -83,4 +83,25 @@ def create_app(db: SupportsFetch, refresh_seconds: int = 5) -> FastAPI:
             ctx(request, rows=rows, failed=failed, db_error=flag.failed),
         )
 
+    @app.get("/performance", response_class=HTMLResponse)
+    def performance(request: Request):
+        return _TEMPLATES.TemplateResponse(
+            request, "performance.html", ctx(request, active="performance")
+        )
+
+    @app.get("/api/timeseries")
+    def api_timeseries(sensor_id: int, window: int = 3600):
+        meta = sensor_meta(db, sensor_id)
+        if meta is None:
+            raise HTTPException(status_code=404, detail="sensor não encontrado")
+        points = timeseries(db, sensor_id, meta.metric, window)
+        return JSONResponse({
+            "metric": meta.metric,
+            "unit": meta.unit,
+            "limits": {"min": meta.min_limit, "max": meta.max_limit},
+            "points": [
+                {"time": p.time.isoformat(), "value": p.value} for p in points
+            ],
+        })
+
     return app
