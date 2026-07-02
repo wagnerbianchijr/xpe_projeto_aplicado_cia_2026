@@ -1,0 +1,39 @@
+#!/bin/bash
+# Bootstrap do EC2-PLC: instala o simulador (baixado do S3), busca o
+# DATABASE_URL no SSM Parameter Store e sobe como serviço systemd.
+set -euxo pipefail
+
+# Amazon Linux 2023 traz python3.9 por padrão; o simulador usa anotações
+# `X | None` (PEP 604), que exigem Python 3.10+. Instala e usa o python3.11.
+dnf install -y python3.11 python3.11-pip unzip
+
+install -d -m 0755 /opt/plc
+aws s3 cp "s3://${bucket}/${key}" /tmp/simulador.zip --region "${region}"
+unzip -o /tmp/simulador.zip -d /opt/plc
+
+python3.11 -m venv /opt/plc/.venv
+/opt/plc/.venv/bin/pip install --no-cache-dir -r /opt/plc/requirements.txt
+
+DB_URL="$(aws ssm get-parameter --name "${db_param}" --with-decryption \
+  --query Parameter.Value --output text --region "${region}")"
+umask 077
+printf 'DATABASE_URL=%s\nSEED=42\n' "$DB_URL" > /opt/plc/.env
+
+cat >/etc/systemd/system/plc.service <<'UNIT'
+[Unit]
+Description=Serra Clara PLC (simulador IIoT)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+WorkingDirectory=/opt/plc
+ExecStart=/opt/plc/.venv/bin/python main.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+systemctl daemon-reload
+systemctl enable --now plc.service

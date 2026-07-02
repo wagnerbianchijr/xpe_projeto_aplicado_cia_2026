@@ -81,9 +81,38 @@ Veja `terraform.tfvars.example` para um ponto de partida.
 `aws_account_id`, `vpc_id`, `vpc_cidr`, `public_subnet_ids`, `private_subnet_ids`,
 `db_security_group_id`, `peering_connection_state`.
 
+## EC2-PLC (simulador na nuvem)
+
+Uma instância EC2 atua como o **PLC** da planta: roda o simulador IIoT como serviço
+e grava no Tiger. Ligada/desligada por `plc_enabled` (default `true`).
+
+- `t3.micro`, Amazon Linux 2023, subnet pública, IMDSv2 obrigatório.
+- Acesso via **SSM Session Manager** (sem chave SSH).
+- **Pré-requisito (fora do Terraform):** o `DATABASE_URL` precisa existir no SSM
+  Parameter Store como SecureString:
+
+  ```bash
+  aws ssm put-parameter --region us-east-1 --type SecureString --overwrite \
+    --name /serra-clara/plc/database_url \
+    --value "postgresql://USER:PASS@HOST:PORT/tsdb?sslmode=require"
+  ```
+
+- No boot, o `user_data`: instala **Python 3.11** (o padrão do AL2023 é 3.9, e o
+  simulador usa anotações `X | None` que exigem 3.10+), baixa o código do simulador
+  do S3, cria venv + `pip install`, lê o `DATABASE_URL` do SSM e sobe o `plc.service`
+  (systemd) que roda `main.py`.
+- Código do simulador é entregue via S3 (o Terraform zipa `../simulador` e faz upload).
+
+Abrir sessão no PLC (saída `plc_ssm_start_command`):
+
+```bash
+aws ssm start-session --target <plc_instance_id> --region us-east-1 --profile bianchi_aws
+# na instância: systemctl status plc ; journalctl -u plc -f
+```
+
 ## Notas
 
 - **Sem NAT gateway** (evita custo); o acesso ao Tiger é privado via peering.
-- **Sem computação** (EC2/ECS): o web-system hoje conecta ao Tiger pela internet
-  pública. O peering passa a ser usado quando a computação rodar dentro desta VPC.
+- O **EC2-PLC** roda dentro desta VPC e grava no Tiger; o web-system continua
+  conectando ao Tiger pela internet pública (fora da VPC).
 - State local (sem backend remoto), adequado à entrega demonstrativa.

@@ -73,3 +73,21 @@ variable "environment" {
   type        = string
   default     = "demo"
 }
+
+variable "plc_enabled" {
+  description = "Cria (true) ou não (false) o EC2-PLC e recursos associados."
+  type        = bool
+  default     = true
+}
+
+variable "plc_instance_type" {
+  description = "Tipo da instância EC2-PLC."
+  type        = string
+  default     = "t3.micro"
+}
+
+variable "db_url_ssm_param" {
+  description = "Nome do parâmetro SSM (SecureString) com o DATABASE_URL do PLC. Criado fora do Terraform."
+  type        = string
+  default     = "/serra-clara/plc/database_url"
+}
