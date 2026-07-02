@@ -1,0 +1,27 @@
+{% if db_error %}
+<div class="banner error">Sem conexão com o banco. Estado indisponível.</div>
+{% else %}
+{% if failed %}
+<div class="banner error">
+  {{ failed|length }} sensor(es) sem leituras recentes:
+  {% for f in failed %}{{ f.sensor_id }} ({{ f.metric }}){% if not loop.last %}, {% endif %}{% endfor %}
+</div>
+{% endif %}
+<table>
+  <thead>
+    <tr><th>Sensor</th><th>Linha</th><th>Métrica</th><th>Valor</th><th>Última leitura</th><th>Status</th></tr>
+  </thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      <td><a class="btn" href="/sensor/{{ r.sensor_id }}">{{ r.sensor_id }}</a></td>
+      <td>{{ r.line_name }}</td>
+      <td>{{ r.metric }}</td>
+      <td>{% if r.value is not none %}{{ "%.2f"|format(r.value) }} {{ r.unit }}{% else %}—{% endif %}</td>
+      <td>{{ r.last_time.strftime("%d/%m %H:%M:%S") if r.last_time else "—" }}</td>
+      <td><span class="pill {{ r.status }}">{{ r.status }}</span></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}

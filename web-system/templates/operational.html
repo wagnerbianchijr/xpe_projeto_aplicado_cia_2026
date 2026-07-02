@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="controls">
+  <label for="line">Linha:</label>
+  <select id="line" name="line_id"
+          hx-get="/api/operational" hx-target="#op-table" hx-swap="innerHTML"
+          hx-trigger="change">
+    <option value="all">Todas</option>
+    <option value="1">Linha Sucos 01</option>
+    <option value="2">Linha Águas Saborizadas 01</option>
+    <option value="3">Linha Chás Gelados 01</option>
+  </select>
+</div>
+<div id="op-table"
+     hx-get="/api/operational" hx-trigger="load, every {{ refresh_seconds }}s"
+     hx-include="#line" hx-swap="innerHTML">
+  <p class="muted">Carregando…</p>
+</div>
+{% endblock %}

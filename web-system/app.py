@@ -60,4 +60,27 @@ def create_app(db: SupportsFetch, refresh_seconds: int = 5) -> FastAPI:
             request, "partials/kpis.html", ctx(request, kpi=data, db_error=flag.failed)
         )
 
+    def _line_id(value: str | None) -> int | None:
+        return int(value) if value not in (None, "", "all") else None
+
+    @app.get("/operational", response_class=HTMLResponse)
+    def operational(request: Request, line_id: str | None = None):
+        return _TEMPLATES.TemplateResponse(
+            request,
+            "operational.html",
+            ctx(request, active="operational", line_id=line_id or "all"),
+        )
+
+    @app.get("/api/operational", response_class=HTMLResponse)
+    def api_operational(request: Request, line_id: str | None = None):
+        flag = _DbError()
+        lid = _line_id(line_id)
+        rows = safe(flag, lambda: sensor_status(db, lid), [])
+        failed = safe(flag, lambda: failed_sensors(db, lid), [])
+        return _TEMPLATES.TemplateResponse(
+            request,
+            "partials/operational_table.html",
+            ctx(request, rows=rows, failed=failed, db_error=flag.failed),
+        )
+
     return app
