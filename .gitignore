@@ -10,3 +10,6 @@ venv/
 # Secrets
 .env
 simulador/.env
+
+# Local-only guidance file (not part of the deliverable)
+CLAUDE.md
