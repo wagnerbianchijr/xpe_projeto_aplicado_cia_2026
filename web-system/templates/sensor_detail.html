@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<a class="btn" href="/operational">← Voltar</a>
+<h2>Sensor {{ meta.sensor_id }} · {{ meta.metric }} ({{ meta.unit }})</h2>
+<p class="muted">{{ meta.description }} — Linha {{ meta.line_id }}. Limites:
+  {{ meta.min_limit if meta.min_limit is not none else "—" }} …
+  {{ meta.max_limit if meta.max_limit is not none else "—" }} {{ meta.unit }}.
+</p>
+
+<div class="controls">
+  <label for="window">Janela:</label>
+  <select id="window">
+    <option value="3600">1 hora</option>
+    <option value="21600">6 horas</option>
+    <option value="86400" selected>24 horas</option>
+    <option value="604800">7 dias</option>
+  </select>
+</div>
+<canvas id="chart" height="120"></canvas>
+
+<h3>Violações recentes (7 dias)</h3>
+{% if violations %}
+<table>
+  <thead><tr><th>Hora (bucket)</th><th>Métrica</th></tr></thead>
+  <tbody>
+    {% for v in violations %}
+    <tr><td>{{ v.bucket.strftime("%d/%m %H:%M") }}</td><td>{{ v.metric }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="muted">Nenhuma violação registrada na janela.</p>
+{% endif %}
+
+<script>
+(function () {
+  const windowSel = document.getElementById("window");
+  const ctx = document.getElementById("chart");
+  let chart;
+  async function load() {
+    const res = await fetch(`/api/timeseries?sensor_id={{ meta.sensor_id }}&window=${windowSel.value}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    const labels = data.points.map((p) => p.time.slice(5, 16).replace("T", " "));
+    const values = data.points.map((p) => p.value);
+    const datasets = [{ label: `${data.metric} (${data.unit})`, data: values, borderColor: "#f0883e", tension: 0.2, pointRadius: 0 }];
+    for (const key of ["min", "max"]) {
+      const lim = data.limits[key];
+      if (lim !== null) datasets.push({ label: `${key} limit`, data: values.map(() => lim), borderColor: "#f85149", borderDash: [6, 4], pointRadius: 0 });
+    }
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, { type: "line", data: { labels, datasets },
+      options: { responsive: true, plugins: { legend: { labels: { color: "#e6edf3" } } }, scales: { x: { ticks: { color: "#8b98a5" } }, y: { ticks: { color: "#8b98a5" } } } } });
+  }
+  windowSel.addEventListener("change", load);
+  load();
+})();
+</script>
+{% endblock %}

@@ -104,4 +104,18 @@ def create_app(db: SupportsFetch, refresh_seconds: int = 5) -> FastAPI:
             ],
         })
 
+    @app.get("/sensor/{sensor_id}", response_class=HTMLResponse)
+    def sensor_detail(request: Request, sensor_id: int):
+        meta = sensor_meta(db, sensor_id)
+        if meta is None:
+            raise HTTPException(status_code=404, detail="sensor não encontrado")
+        flag = _DbError()
+        recent = safe(flag, lambda: violations(db, meta.line_id, 7 * 24 * 3600), [])
+        sensor_violations = [v for v in recent if v.sensor_id == sensor_id]
+        return _TEMPLATES.TemplateResponse(
+            request,
+            "sensor_detail.html",
+            ctx(request, meta=meta, violations=sensor_violations, db_error=flag.failed),
+        )
+
     return app
