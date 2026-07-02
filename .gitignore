@@ -13,3 +13,10 @@ simulador/.env
 
 # Local-only guidance file (not part of the deliverable)
 CLAUDE.md
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/terraform.tfvars
+terraform/crash.log

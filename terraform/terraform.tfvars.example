@@ -1,0 +1,20 @@
+# Copie para terraform.tfvars e ajuste conforme necessário.
+# terraform.tfvars é git-ignored (pode conter valores específicos do ambiente).
+
+aws_profile = "bianchi_aws"
+aws_region  = "us-east-1"
+
+vpc_cidr             = "10.20.0.0/16"
+public_subnet_cidrs  = ["10.20.0.0/24", "10.20.1.0/24"]
+private_subnet_cidrs = ["10.20.10.0/24", "10.20.11.0/24"]
+azs                  = ["us-east-1a", "us-east-1b"]
+
+# Peering com o Tiger Cloud
+tiger_peer_cidr = "11.0.0.0/16"
+
+# Preencha após o Tiger enviar o pedido de peering (aparece como pcx-... na AWS).
+# Vazio => os recursos de peering não são criados (apenas a rede).
+tiger_peering_connection_id = "" # ex.: "pcx-0abc123def456"
+
+# Doc do Tiger recomenda 5432; o endpoint público do serviço usa 36101.
+db_port = 5432
