@@ -1,0 +1,12 @@
+{% if db_error %}
+<div class="banner error">sem conexão com o banco</div>
+{% else %}
+<div class="kpi-grid">
+  <div class="kpi ok"><span class="n">{{ kpi.ok }}</span><span class="l">Sensores OK</span></div>
+  <div class="kpi warn"><span class="n">{{ kpi.alerta }}</span><span class="l">Em alerta</span></div>
+  <div class="kpi mute"><span class="n">{{ kpi.sem_dados }}</span><span class="l">Sem dados</span></div>
+  <div class="kpi bad"><span class="n">{{ kpi.failed }}</span><span class="l">Sensores falhos</span></div>
+  <div class="kpi"><span class="n">{{ kpi.lines }}</span><span class="l">Linhas</span></div>
+  <div class="kpi"><span class="n">{{ "%.0f"|format(kpi.production_today) }}</span><span class="l">Produção hoje</span></div>
+</div>
+{% endif %}

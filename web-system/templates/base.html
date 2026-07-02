@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Serra Clara Bebidas — Painel IIoT</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <h1>Serra Clara Bebidas — Painel IIoT</h1>
+    <nav>
+      <a href="/" class="{{ 'on' if active == 'overview' else '' }}">Visão geral</a>
+      <a href="/operational" class="{{ 'on' if active == 'operational' else '' }}">Operational Hub</a>
+      <a href="/performance" class="{{ 'on' if active == 'performance' else '' }}">Performance Insights</a>
+    </nav>
+  </header>
+
+  <section id="kpis" hx-get="/api/kpis" hx-trigger="load, every {{ refresh_seconds }}s" hx-swap="innerHTML">
+    <p class="muted">Carregando indicadores…</p>
+  </section>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
