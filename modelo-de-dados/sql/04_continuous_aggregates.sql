@@ -1,10 +1,16 @@
 -- Hierarchical continuous aggregates: raw -> 1m -> 15m -> 30m -> 1h.
 -- Each level keeps sum + count so avg is recomputed correctly upstream
 -- (avg = sum_value / count_value). production_count throughput = max - min.
+--
+-- materialized_only = false enables real-time aggregation: queries UNION the
+-- materialized buckets with a live aggregation of the not-yet-materialized
+-- recent rows, so the dashboard shows current data instead of waiting for the
+-- refresh policy (which lags by its end_offset). Required by web-system's
+-- Performance Insights chart.
 
 -- Level 1: 1 minute, from raw readings.
 CREATE MATERIALIZED VIEW sensor_reading_1m
-WITH (timescaledb.continuous) AS
+WITH (timescaledb.continuous, timescaledb.materialized_only = false) AS
 SELECT
     time_bucket(INTERVAL '1 minute', time) AS bucket
   , sensor_id
@@ -19,7 +25,7 @@ WITH NO DATA;
 
 -- Level 2: 15 minutes, from the 1m aggregate.
 CREATE MATERIALIZED VIEW sensor_reading_15m
-WITH (timescaledb.continuous) AS
+WITH (timescaledb.continuous, timescaledb.materialized_only = false) AS
 SELECT
     time_bucket(INTERVAL '15 minutes', bucket) AS bucket
   , sensor_id
@@ -34,7 +40,7 @@ WITH NO DATA;
 
 -- Level 3: 30 minutes, from the 15m aggregate.
 CREATE MATERIALIZED VIEW sensor_reading_30m
-WITH (timescaledb.continuous) AS
+WITH (timescaledb.continuous, timescaledb.materialized_only = false) AS
 SELECT
     time_bucket(INTERVAL '30 minutes', bucket) AS bucket
   , sensor_id
@@ -49,7 +55,7 @@ WITH NO DATA;
 
 -- Level 4: 1 hour, from the 30m aggregate.
 CREATE MATERIALIZED VIEW sensor_reading_1h
-WITH (timescaledb.continuous) AS
+WITH (timescaledb.continuous, timescaledb.materialized_only = false) AS
 SELECT
     time_bucket(INTERVAL '1 hour', bucket) AS bucket
   , sensor_id
