@@ -70,7 +70,7 @@ SELECT
   , ss.status
 FROM sensor_status ss
 JOIN production_line pl ON pl.line_id = ss.line_id
-WHERE (%(line_id)s IS NULL OR ss.line_id = %(line_id)s)
+WHERE (%(line_id)s::int IS NULL OR ss.line_id = %(line_id)s::int)
 ORDER BY ss.line_id, ss.sensor_id
 """
 
@@ -84,7 +84,7 @@ SELECT
   , sl.is_failed
 FROM sensor_liveness sl
 WHERE sl.is_failed
-  AND (%(line_id)s IS NULL OR sl.line_id = %(line_id)s)
+  AND (%(line_id)s::int IS NULL OR sl.line_id = %(line_id)s::int)
 ORDER BY sl.line_id, sl.sensor_id
 """
 
@@ -129,7 +129,7 @@ SELECT
   , metric
 FROM sensor_out_of_range_1h
 WHERE violated
-  AND (%(line_id)s IS NULL OR line_id = %(line_id)s)
+  AND (%(line_id)s::int IS NULL OR line_id = %(line_id)s::int)
   AND bucket >= now() - %(window)s::interval
 ORDER BY bucket DESC
 """
