@@ -7,21 +7,30 @@
   {% for f in failed %}{{ f.sensor_id }} ({{ f.metric }}){% if not loop.last %}, {% endif %}{% endfor %}
 </div>
 {% endif %}
-<table>
-  <thead>
-    <tr><th>Sensor</th><th>Linha</th><th>Métrica</th><th>Valor</th><th>Última leitura</th><th>Status</th></tr>
-  </thead>
-  <tbody>
-    {% for r in rows %}
-    <tr>
-      <td><a class="btn" href="/sensor/{{ r.sensor_id }}">{{ r.sensor_id }}</a></td>
-      <td>{{ r.line_name }}</td>
-      <td>{{ r.metric }}</td>
-      <td>{% if r.value is not none %}{{ "%.2f"|format(r.value) }} {{ r.unit }}{% else %}—{% endif %}</td>
-      <td>{{ r.last_time.strftime("%d/%m %H:%M:%S") if r.last_time else "—" }}</td>
-      <td><span class="pill {{ r.status }}">{{ r.status }}</span></td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+{% if rows %}
+<div class="line-grid">
+  {% for line_id, line_rows in rows|groupby('line_id') %}
+  <section class="line-panel">
+    <h3>{{ line_rows[0].line_name }}</h3>
+    <table class="compact">
+      <thead>
+        <tr><th>Sensor</th><th>Métrica</th><th>Valor</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for r in line_rows %}
+        <tr title="Última leitura: {{ r.last_time.strftime('%d/%m %H:%M:%S') if r.last_time else '—' }}">
+          <td><a class="btn" href="/sensor/{{ r.sensor_id }}">{{ r.sensor_id }}</a></td>
+          <td>{{ r.metric }}</td>
+          <td>{% if r.value is not none %}{{ "%.2f"|format(r.value) }} {{ r.unit }}{% else %}—{% endif %}</td>
+          <td><span class="pill {{ r.status }}">{{ r.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% endfor %}
+</div>
+{% else %}
+<p class="muted">Nenhum sensor para exibir.</p>
+{% endif %}
 {% endif %}
