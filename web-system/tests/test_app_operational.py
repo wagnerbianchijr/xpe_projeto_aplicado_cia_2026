@@ -57,3 +57,20 @@ def test_operational_table_partial_lists_status_and_failed():
     assert "temperature" in body
     assert "normal" in body
     assert "line_speed" in body  # failed sensor listed
+
+
+def test_operational_table_shows_banner_when_db_down():
+    class Broken:
+        def fetch(self, *a, **k):
+            raise RuntimeError("no db")
+
+    client = TestClient(create_app(Broken()))
+    resp = client.get("/api/operational")
+    assert resp.status_code == 200
+    assert "sem conexão com o banco" in resp.text.lower()
+
+
+def test_operational_malformed_line_id_does_not_500():
+    client = TestClient(create_app(_db()))
+    resp = client.get("/api/operational?line_id=abc")
+    assert resp.status_code == 200

@@ -49,3 +49,14 @@ def test_sensor_detail_unknown_404():
     client = TestClient(create_app(_db([])))
     resp = client.get("/sensor/999")
     assert resp.status_code == 404
+
+
+def test_sensor_detail_shows_banner_when_db_down():
+    class Broken:
+        def fetch(self, *a, **k):
+            raise RuntimeError("no db")
+
+    client = TestClient(create_app(Broken()))
+    resp = client.get("/sensor/101")
+    assert resp.status_code == 200
+    assert "sem conexão com o banco" in resp.text.lower()

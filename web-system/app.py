@@ -61,7 +61,12 @@ def create_app(db: SupportsFetch, refresh_seconds: int = 5) -> FastAPI:
         )
 
     def _line_id(value: str | None) -> int | None:
-        return int(value) if value not in (None, "", "all") else None
+        if value in (None, "", "all"):
+            return None
+        try:
+            return int(value)
+        except ValueError:
+            return None
 
     @app.get("/operational", response_class=HTMLResponse)
     def operational(request: Request, line_id: str | None = None):
@@ -106,10 +111,16 @@ def create_app(db: SupportsFetch, refresh_seconds: int = 5) -> FastAPI:
 
     @app.get("/sensor/{sensor_id}", response_class=HTMLResponse)
     def sensor_detail(request: Request, sensor_id: int):
-        meta = sensor_meta(db, sensor_id)
+        flag = _DbError()
+        meta = safe(flag, lambda: sensor_meta(db, sensor_id), None)
+        if flag.failed:
+            return _TEMPLATES.TemplateResponse(
+                request,
+                "sensor_detail.html",
+                ctx(request, meta=None, violations=[], db_error=True),
+            )
         if meta is None:
             raise HTTPException(status_code=404, detail="sensor não encontrado")
-        flag = _DbError()
         recent = safe(flag, lambda: violations(db, meta.line_id, 7 * 24 * 3600), [])
         sensor_violations = [v for v in recent if v.sensor_id == sensor_id]
         return _TEMPLATES.TemplateResponse(

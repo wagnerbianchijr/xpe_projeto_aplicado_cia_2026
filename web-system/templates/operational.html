@@ -5,10 +5,10 @@
   <select id="line" name="line_id"
           hx-get="/api/operational" hx-target="#op-table" hx-swap="innerHTML"
           hx-trigger="change">
-    <option value="all">Todas</option>
-    <option value="1">Linha Sucos 01</option>
-    <option value="2">Linha Águas Saborizadas 01</option>
-    <option value="3">Linha Chás Gelados 01</option>
+    <option value="all" {% if line_id == "all" %}selected{% endif %}>Todas</option>
+    <option value="1" {% if line_id == "1" %}selected{% endif %}>Linha Sucos 01</option>
+    <option value="2" {% if line_id == "2" %}selected{% endif %}>Linha Águas Saborizadas 01</option>
+    <option value="3" {% if line_id == "3" %}selected{% endif %}>Linha Chás Gelados 01</option>
   </select>
 </div>
 <div id="op-table"
