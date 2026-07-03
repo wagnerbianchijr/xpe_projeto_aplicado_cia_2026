@@ -1,5 +1,13 @@
 # Serra Clara Bebidas — Solução IIoT na Nuvem
 
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-TimescaleDB-336791?logo=postgresql&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-EC2%20%C2%B7%20VPC-232F3E?logo=amazonwebservices&logoColor=white)
+![Terraform](https://img.shields.io/badge/IaC-Terraform-7B42BC?logo=terraform&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-dashboard-009688?logo=fastapi&logoColor=white)
+![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-brightgreen)
+![Terraform CI](https://github.com/wagnerbianchijr/xpe_projeto_aplicado_cia_2026/actions/workflows/terraform.yml/badge.svg)
+
 Projeto Aplicado do curso **Cloud Computing com Inteligência Artificial (XPE)**.
 
 Uma solução de nuvem que coleta dados de sensores **IIoT** de uma fábrica de bebidas
@@ -7,6 +15,12 @@ fictícia (**Serra Clara Bebidas S.A.**), armazena a série temporal em **Timesc
 no **Tiger Cloud** e expõe indicadores operacionais e históricos em um **dashboard web**.
 A infraestrutura (rede + computação) é provisionada com **Terraform** na **AWS**, com
 conexão privada ao banco via **VPC peering**.
+
+A arquitetura é **inspirada em sistemas SCADA** (*Supervisory Control and Data
+Acquisition*), comuns na indústria, com três camadas: **aquisição de dados de campo**
+(o EC2-PLC rodando o simulador, no papel de PLC/RTU que emite as leituras dos sensores),
+**dados/histórico** (TimescaleDB no Tiger Cloud, com agregados contínuos) e **supervisão**
+(o dashboard web, que apresenta os indicadores em tempo real e o histórico).
 
 ## Arquitetura
 
