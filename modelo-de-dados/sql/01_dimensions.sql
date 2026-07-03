@@ -1,4 +1,4 @@
--- Dimension tables: production lines and their sensor catalog.
+-- Tabelas dimensão: linhas de produção e o catálogo de sensores.
 
 CREATE TABLE production_line (
     line_id       smallint PRIMARY KEY

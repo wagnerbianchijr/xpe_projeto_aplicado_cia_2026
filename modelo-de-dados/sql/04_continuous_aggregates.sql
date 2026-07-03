@@ -1,14 +1,15 @@
--- Hierarchical continuous aggregates: raw -> 1m -> 15m -> 30m -> 1h.
--- Each level keeps sum + count so avg is recomputed correctly upstream
--- (avg = sum_value / count_value). production_count throughput = max - min.
+-- Agregados contínuos hierárquicos: cru -> 1m -> 15m -> 30m -> 1h.
+-- Cada nível mantém sum + count para que a média seja recalculada corretamente
+-- nos níveis acima (média = sum_value / count_value). Throughput do
+-- production_count = max - min.
 --
--- materialized_only = false enables real-time aggregation: queries UNION the
--- materialized buckets with a live aggregation of the not-yet-materialized
--- recent rows, so the dashboard shows current data instead of waiting for the
--- refresh policy (which lags by its end_offset). Required by web-system's
--- Performance Insights chart.
+-- materialized_only = false habilita a agregação em tempo real: as consultas
+-- fazem UNION dos buckets materializados com uma agregação ao vivo das linhas
+-- recentes ainda não materializadas, então o dashboard mostra dados atuais em
+-- vez de esperar a política de refresh (que atrasa pelo seu end_offset).
+-- Necessário para o gráfico do Performance Insights do web-system.
 
--- Level 1: 1 minute, from raw readings.
+-- Nível 1: 1 minuto, a partir das leituras cruas.
 CREATE MATERIALIZED VIEW sensor_reading_1m
 WITH (timescaledb.continuous, timescaledb.materialized_only = false) AS
 SELECT
@@ -23,7 +24,7 @@ FROM sensor_reading
 GROUP BY 1, 2
 WITH NO DATA;
 
--- Level 2: 15 minutes, from the 1m aggregate.
+-- Nível 2: 15 minutos, a partir do agregado de 1m.
 CREATE MATERIALIZED VIEW sensor_reading_15m
 WITH (timescaledb.continuous, timescaledb.materialized_only = false) AS
 SELECT
@@ -38,7 +39,7 @@ FROM sensor_reading_1m
 GROUP BY 1, 2
 WITH NO DATA;
 
--- Level 3: 30 minutes, from the 15m aggregate.
+-- Nível 3: 30 minutos, a partir do agregado de 15m.
 CREATE MATERIALIZED VIEW sensor_reading_30m
 WITH (timescaledb.continuous, timescaledb.materialized_only = false) AS
 SELECT
@@ -53,7 +54,7 @@ FROM sensor_reading_15m
 GROUP BY 1, 2
 WITH NO DATA;
 
--- Level 4: 1 hour, from the 30m aggregate.
+-- Nível 4: 1 hora, a partir do agregado de 30m.
 CREATE MATERIALIZED VIEW sensor_reading_1h
 WITH (timescaledb.continuous, timescaledb.materialized_only = false) AS
 SELECT

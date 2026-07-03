@@ -1,10 +1,10 @@
--- Support views for the web dashboard.
+-- Views de apoio para o dashboard web.
 
--- Real-time status: latest raw reading per sensor vs its operating limits.
--- NULL-limit intent: production_count sensors have max_limit = NULL (no upper
--- bound). `value > NULL` is NULL, so the alerta branch is skipped and they read
--- 'normal' unless value < min_limit (0). This is deliberate; do not COALESCE
--- max_limit to +inf "to fix" it.
+-- Status em tempo real: última leitura crua por sensor vs. seus limites operacionais.
+-- Intenção do limite NULL: sensores production_count têm max_limit = NULL (sem
+-- limite superior). `value > NULL` é NULL, então o ramo 'alerta' é ignorado e eles
+-- ficam 'normal' a menos que value < min_limit (0). Isso é proposital; não faça
+-- COALESCE de max_limit para +inf "para corrigir".
 CREATE VIEW sensor_status AS
 SELECT
     s.sensor_id
@@ -27,8 +27,8 @@ LEFT JOIN LATERAL (
     LIMIT 1
 ) lr ON true;
 
--- Liveness: sensors that missed their expected reading window.
--- is_failed when no data ever, or last reading older than 2x sample interval.
+-- Liveness: sensores que perderam sua janela esperada de leitura.
+-- is_failed quando nunca houve dado, ou última leitura mais velha que 2x o intervalo de amostragem.
 CREATE VIEW sensor_liveness AS
 SELECT
     s.sensor_id
@@ -47,10 +47,10 @@ LEFT JOIN LATERAL (
     WHERE r.sensor_id = s.sensor_id
 ) lr ON true;
 
--- Out-of-range history: hourly buckets whose min/max breached the sensor limits.
--- COALESCE to FALSE so buckets never return NULL (production_count has a NULL
--- max_limit -> the upper comparison is NULL); callers can safely use
--- `WHERE violated` or `WHERE violated = FALSE`.
+-- Histórico fora de faixa: buckets horários cujo min/max violou os limites do sensor.
+-- COALESCE para FALSE para que os buckets nunca retornem NULL (production_count tem
+-- max_limit NULL -> a comparação superior é NULL); quem consome pode usar com
+-- segurança `WHERE violated` ou `WHERE violated = FALSE`.
 CREATE VIEW sensor_out_of_range_1h AS
 SELECT
     a.bucket

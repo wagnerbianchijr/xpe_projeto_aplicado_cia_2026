@@ -1,4 +1,4 @@
--- Fact hypertable: raw sensor readings.
+-- Hypertable de fatos: leituras cruas dos sensores.
 
 CREATE TABLE sensor_reading (
     time       timestamptz      NOT NULL
