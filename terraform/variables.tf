@@ -68,10 +68,21 @@ variable "project" {
   default     = "serra-clara"
 }
 
-variable "environment" {
-  description = "Ambiente lógico, usado em tags."
+variable "service" {
+  description = "Tag FinOps 'Service' (qualquer valor) exigida pela tagging policy do Infracost."
   type        = string
-  default     = "demo"
+  default     = "serra-clara-iiot"
+}
+
+variable "environment" {
+  description = "Tag FinOps 'Environment'. A tagging policy do Infracost exige Dev, Stage ou Prod."
+  type        = string
+  default     = "Prod"
+
+  validation {
+    condition     = contains(["Dev", "Stage", "Prod"], var.environment)
+    error_message = "environment deve ser um de: Dev, Stage, Prod (exigido pela tagging policy do Infracost)."
+  }
 }
 
 variable "plc_enabled" {
