@@ -6,6 +6,7 @@ from db import SupportsFetch
 from models import (
     FailingSensor,
     KpiSummary,
+    LineOverview,
     LineRecordCount,
     LivenessRow,
     SensorMeta,
@@ -250,6 +251,37 @@ def failing_sensors(db: SupportsFetch) -> list[FailingSensor]:
             line_id=r["line_id"],
             line_name=r["line_name"],
             metric=r["metric"],
+        )
+        for r in rows
+    ]
+
+
+_LINE_OVERVIEW_SQL = """
+SELECT
+    pl.line_id
+  , pl.name AS line_name
+  , count(*) FILTER (WHERE ss.status = 'normal')    AS ok
+  , count(*) FILTER (WHERE ss.status = 'alerta')    AS alerta
+  , count(*) FILTER (WHERE ss.status = 'sem_dados') AS sem_dados
+  , count(*) FILTER (WHERE sl.is_failed)            AS failed
+FROM production_line pl
+JOIN sensor_status ss    ON ss.line_id = pl.line_id
+JOIN sensor_liveness sl  ON sl.sensor_id = ss.sensor_id
+GROUP BY pl.line_id, pl.name
+ORDER BY pl.line_id
+"""
+
+
+def line_overview(db: SupportsFetch) -> list[LineOverview]:
+    rows = db.fetch(_LINE_OVERVIEW_SQL)
+    return [
+        LineOverview(
+            line_id=r["line_id"],
+            line_name=r["line_name"],
+            ok=r["ok"],
+            alerta=r["alerta"],
+            sem_dados=r["sem_dados"],
+            failed=r["failed"],
         )
         for r in rows
     ]

@@ -1,0 +1,30 @@
+{% if db_error %}
+<div class="banner error">Sem conexão com o banco. Linhas indisponíveis.</div>
+{% elif lines %}
+<div class="conveyor-grid">
+  {% for l in lines %}
+  <div class="conveyor status-{{ l.status }}">
+    <div class="conveyor-head">
+      <span class="light" title="{{ l.status }}"></span>
+      <span class="conveyor-name">{{ l.line_name }}</span>
+    </div>
+    <svg class="belt" viewBox="0 0 200 90" role="img"
+         aria-label="Esteira {{ l.line_name }} — status {{ l.status }}">
+      <circle class="roller" cx="22" cy="62" r="16" />
+      <circle class="roller" cx="178" cy="62" r="16" />
+      <rect class="belt-surface" x="22" y="48" width="156" height="28" rx="4" />
+      <g class="items">
+        <rect class="item" y="30" width="14" height="18" rx="2" />
+        <rect class="item" y="30" width="14" height="18" rx="2" />
+        <rect class="item" y="30" width="14" height="18" rx="2" />
+      </g>
+    </svg>
+    <div class="conveyor-foot muted">
+      {{ l.ok }} OK · {{ l.alerta }} alerta · {{ l.failed }} falhos
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="muted">Nenhuma linha para exibir.</p>
+{% endif %}

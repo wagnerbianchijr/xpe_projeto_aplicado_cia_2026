@@ -39,3 +39,27 @@ canvas { background:var(--card); border-radius:10px; padding:10px; }
 .line-panel h3 { margin:0 0 8px; font-size:14px; color:var(--accent); }
 .line-panel table.compact th, .line-panel table.compact td { padding:6px 8px; font-size:13px; }
 .line-panel table.compact tbody tr:last-child td { border-bottom:none; }
+
+/* Visão Geral: esteiras por linha de produção */
+.section-title { font-size:15px; margin:4px 0 12px; color:var(--ink); }
+.conveyor-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:20px; }
+@media (max-width:900px) { .conveyor-grid { grid-template-columns:1fr; } }
+.conveyor { background:var(--card); border-radius:10px; padding:12px 14px; }
+.conveyor-head { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.conveyor-name { font-size:13px; font-weight:600; }
+.conveyor-foot { font-size:11px; margin-top:4px; }
+.light { width:14px; height:14px; border-radius:50%; background:var(--mut); flex:0 0 auto; animation:light-pulse 2s ease-in-out infinite; }
+.status-verde   .light { background:var(--ok);   box-shadow:0 0 8px var(--ok); }
+.status-amarelo .light { background:var(--warn); box-shadow:0 0 8px var(--warn); }
+.status-vermelho .light { background:var(--bad); box-shadow:0 0 8px var(--bad); }
+@keyframes light-pulse { 0%,100% { opacity:1; } 50% { opacity:.45; } }
+.belt { width:100%; height:auto; display:block; }
+.belt-surface { fill:#26313d; }
+.roller { fill:#3a4a5c; }
+.item { fill:var(--accent); animation:belt-move 3s linear infinite; }
+.item:nth-child(2) { animation-delay:-1s; }
+.item:nth-child(3) { animation-delay:-2s; }
+@keyframes belt-move { from { transform:translateX(8px); } to { transform:translateX(190px); } }
+.status-vermelho .item { animation-play-state:paused; }
+.status-vermelho .belt-surface, .status-vermelho .roller, .status-vermelho .item { opacity:.45; }
+@media (prefers-reduced-motion: reduce) { .item, .light { animation:none; } }

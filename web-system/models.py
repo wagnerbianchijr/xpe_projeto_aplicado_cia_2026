@@ -75,3 +75,22 @@ class SensorMeta:
     min_limit: float | None
     max_limit: float | None
     description: str | None
+
+
+@dataclass
+class LineOverview:
+    line_id: int
+    line_name: str
+    ok: int
+    alerta: int
+    sem_dados: int
+    failed: int
+
+    @property
+    def status(self) -> str:
+        """Cor do farol da linha: vermelho > amarelo > verde."""
+        if self.alerta > 0:
+            return "vermelho"
+        if self.sem_dados > 0 or self.failed > 0:
+            return "amarelo"
+        return "verde"

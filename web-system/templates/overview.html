@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
+<h2 class="section-title">Linhas de produção</h2>
+<div id="lines"
+     hx-get="/api/lines" hx-trigger="load, refresh-tick from:body" hx-swap="innerHTML">
+  <p class="muted">Carregando linhas…</p>
+</div>
 <p class="muted">
   Selecione <strong>Operational Hub</strong> para o estado em tempo real ou
   <strong>Performance Insights</strong> para o histórico.

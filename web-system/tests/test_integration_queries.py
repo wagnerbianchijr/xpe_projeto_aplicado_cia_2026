@@ -62,3 +62,8 @@ def test_timeseries_executes(db):
 def test_failing_sensors_executes(db):
     rows = queries.failing_sensors(db)
     assert isinstance(rows, list)
+
+
+def test_line_overview_executes(db):
+    rows = queries.line_overview(db)
+    assert isinstance(rows, list) and len(rows) >= 1

@@ -12,6 +12,7 @@ from queries import (
     failed_sensors,
     failing_sensors,
     kpis,
+    line_overview,
     sensor_meta,
     sensor_status,
     timeseries,
@@ -67,6 +68,14 @@ def create_app(db: SupportsFetch, refresh_seconds: int = 5) -> FastAPI:
         alerts = safe(flag, lambda: failing_sensors(db), [])
         return _TEMPLATES.TemplateResponse(
             request, "partials/alerts.html", ctx(request, alerts=alerts, db_error=flag.failed)
+        )
+
+    @app.get("/api/lines", response_class=HTMLResponse)
+    def api_lines(request: Request):
+        flag = _DbError()
+        lines = safe(flag, lambda: line_overview(db), [])
+        return _TEMPLATES.TemplateResponse(
+            request, "partials/lines.html", ctx(request, lines=lines, db_error=flag.failed)
         )
 
     def _line_id(value: str | None) -> int | None:
