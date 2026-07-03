@@ -91,3 +91,15 @@ variable "db_url_ssm_param" {
   type        = string
   default     = "/serra-clara/plc/database_url"
 }
+
+variable "web_enabled" {
+  description = "Cria (true) ou não (false) o EC2 do web-system (dashboard público em 443)."
+  type        = bool
+  default     = true
+}
+
+variable "web_instance_type" {
+  description = "Tipo da instância EC2 do web-system."
+  type        = string
+  default     = "t3.micro"
+}

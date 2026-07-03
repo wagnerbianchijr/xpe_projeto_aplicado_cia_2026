@@ -54,3 +54,23 @@ output "plc_source_bucket" {
   description = "Bucket S3 com o código do simulador entregue ao PLC."
   value       = var.plc_enabled ? aws_s3_bucket.plc_src[0].id : null
 }
+
+output "web_instance_id" {
+  description = "ID da instância EC2 do web-system (null quando web_enabled=false)."
+  value       = var.web_enabled ? aws_instance.web[0].id : null
+}
+
+output "web_public_ip" {
+  description = "IP público do web-system."
+  value       = var.web_enabled ? aws_instance.web[0].public_ip : null
+}
+
+output "web_url" {
+  description = "URL do dashboard (cert self-signed; aceite o aviso do navegador)."
+  value       = var.web_enabled ? "https://${aws_instance.web[0].public_ip}/" : null
+}
+
+output "web_ssm_start_command" {
+  description = "Comando para abrir sessão SSM no web-system."
+  value       = var.web_enabled ? "aws ssm start-session --target ${aws_instance.web[0].id} --region ${var.aws_region} --profile ${var.aws_profile}" : null
+}
