@@ -74,16 +74,9 @@ variable "service" {
   default     = "serra-clara-iiot"
 }
 
-variable "environment" {
-  description = "Tag FinOps 'Environment'. A tagging policy do Infracost exige Dev, Stage ou Prod."
-  type        = string
-  default     = "Prod"
-
-  validation {
-    condition     = contains(["Dev", "Stage", "Prod"], var.environment)
-    error_message = "environment deve ser um de: Dev, Stage, Prod (exigido pela tagging policy do Infracost)."
-  }
-}
+# A tag Environment é definida como literal "Prod" no provider (providers.tf),
+# não como variável: o Infracost sequestra variáveis chamadas "environment"
+# (resolve para o nome do branch), o que reprovaria a tagging policy.
 
 variable "plc_enabled" {
   description = "Cria (true) ou não (false) o EC2-PLC e recursos associados."
