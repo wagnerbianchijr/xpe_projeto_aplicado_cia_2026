@@ -1,11 +1,14 @@
 """Testes de integração contra um banco real.
 
-Só rodam quando DATABASE_URL está definida (via ambiente ou web-system/.env);
-caso contrário são pulados, para não exigir banco vivo no CI. Executam o SQL de
-verdade — pegam erros que o FakeDatabase não pega (ex.: tipos de parâmetro).
+Só rodam quando há um banco alcançável (DATABASE_URL definida via ambiente ou
+web-system/.env E a conexão responde). Caso contrário são pulados — assim não
+exigem banco vivo no CI nem falham quando o banco é privado (ex.: acessível só
+de dentro da VPC). Executam o SQL de verdade — pegam erros que o FakeDatabase
+não pega (ex.: tipos de parâmetro).
 """
 import os
 
+import psycopg
 import pytest
 from dotenv import load_dotenv
 
@@ -15,8 +18,22 @@ import queries
 from db import Database, create_pool
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
+
+
+def _db_reachable() -> bool:
+    """Sonda rápida: o banco responde? Evita travar quando é privado/inacessível."""
+    if not DATABASE_URL:
+        return False
+    try:
+        with psycopg.connect(DATABASE_URL, connect_timeout=3):
+            return True
+    except Exception:
+        return False
+
+
 pytestmark = pytest.mark.skipif(
-    not DATABASE_URL, reason="DATABASE_URL não definida; teste de integração pulado"
+    not _db_reachable(),
+    reason="banco não alcançável (DATABASE_URL ausente ou privado); integração pulada",
 )
 
 
