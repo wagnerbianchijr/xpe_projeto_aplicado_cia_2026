@@ -1,7 +1,7 @@
-"""Continuous IIoT simulator: every tick, generate readings and write them.
+"""Simulador IIoT contínuo: a cada tick, gera leituras e as grava.
 
-Run:  python main.py     (reads simulador/.env for DATABASE_URL)
-Stop: Ctrl+C             (clean shutdown)
+Rodar:  python main.py     (lê simulador/.env para o DATABASE_URL)
+Parar:  Ctrl+C             (desligamento limpo)
 """
 import random
 import signal
@@ -25,7 +25,7 @@ def _handle_sigint(signum, frame):
 
 
 def sleep_seconds(tick: float, monotonic_now: float) -> float:
-    """Seconds to sleep so ticks land on multiples of `tick` (no drift)."""
+    """Segundos a dormir para os ticks caírem em múltiplos de `tick` (sem drift)."""
     remainder = monotonic_now % tick
     return tick - remainder if remainder else tick
 

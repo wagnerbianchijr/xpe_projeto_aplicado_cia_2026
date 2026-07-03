@@ -1,4 +1,4 @@
-"""Configuration loaded from environment (.env is git-ignored)."""
+"""Configuração carregada do ambiente (.env é git-ignored)."""
 from dataclasses import dataclass
 import os
 
@@ -15,10 +15,10 @@ class Settings:
 
 
 def load_settings(load_env: bool = True) -> Settings:
-    """Build Settings from environment variables.
+    """Monta Settings a partir das variáveis de ambiente.
 
-    When load_env is True, values are first loaded from a local .env file.
-    Tests pass load_env=False so a developer's .env cannot leak into results.
+    Quando load_env é True, os valores são primeiro carregados de um .env local.
+    Os testes passam load_env=False para que o .env do dev não vaze nos resultados.
     """
     if load_env:
         load_dotenv()
@@ -45,7 +45,7 @@ def load_settings(load_env: bool = True) -> Settings:
 
 
 def _probability(name: str, default: str) -> float:
-    """Parse an env var as a probability in [0, 1]; reject anything else."""
+    """Lê uma variável de ambiente como probabilidade em [0, 1]; rejeita o resto."""
     value = float(os.environ.get(name, default))
     if not 0.0 <= value <= 1.0:
         raise ValueError(f"{name} must be a probability in [0, 1], got {value}")

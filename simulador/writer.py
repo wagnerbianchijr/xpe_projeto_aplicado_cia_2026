@@ -1,4 +1,4 @@
-"""Persist generated readings to the sensor_reading hypertable."""
+"""Persiste as leituras geradas na hypertable sensor_reading."""
 
 _INSERT_SQL = (
     "INSERT INTO sensor_reading (time, sensor_id, value, quality) "
@@ -7,7 +7,7 @@ _INSERT_SQL = (
 
 
 def insert_readings(conn, readings) -> int:
-    """Insert a tick's readings in one transaction. Returns rows written."""
+    """Insere as leituras de um tick numa transação. Retorna as linhas gravadas."""
     if not readings:
         return 0
     rows = [(r.time, r.sensor_id, r.value, r.quality) for r in readings]

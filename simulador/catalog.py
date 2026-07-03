@@ -1,4 +1,4 @@
-"""Load the sensor catalog (dimension table) from the database."""
+"""Carrega o catálogo de sensores (tabela dimensão) do banco."""
 from dataclasses import dataclass
 
 
@@ -12,7 +12,7 @@ class SensorSpec:
 
 
 def load_catalog(conn) -> list[SensorSpec]:
-    """Read every sensor's identity and operating limits, ordered by id."""
+    """Lê identidade e limites operacionais de cada sensor, ordenados por id."""
     with conn.cursor() as cur:
         cur.execute(
             "SELECT sensor_id, line_id, metric, min_limit, max_limit "
