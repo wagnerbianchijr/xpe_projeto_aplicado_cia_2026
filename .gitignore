@@ -21,3 +21,7 @@ terraform/*.tfstate.*
 terraform/terraform.tfvars
 terraform/crash.log
 terraform/build/
+
+# Infracost cache
+terraform/.infracost/
+.infracost/
