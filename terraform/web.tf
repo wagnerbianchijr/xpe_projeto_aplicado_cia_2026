@@ -165,5 +165,11 @@ resource "aws_instance" "web" {
 
   depends_on = [aws_s3_object.web]
 
+  # AMI "latest" do AL2023: evita recriar a instância num apply de rotina quando
+  # a Amazon publica uma nova AMI. Remova para atualizar a AMI de propósito.
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
   tags = { Name = local.web_name }
 }

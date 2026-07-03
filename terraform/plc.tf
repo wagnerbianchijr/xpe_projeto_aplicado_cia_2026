@@ -163,5 +163,12 @@ resource "aws_instance" "plc" {
 
   depends_on = [aws_s3_object.simulador]
 
+  # A AMI vem do parâmetro "latest" do AL2023; sem isto, quando a Amazon publica
+  # uma nova AMI, um apply de rotina recriaria a instância. Atualize a AMI de
+  # propósito (removendo este ignore) quando quiser aplicar patches.
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
   tags = { Name = local.plc_name }
 }
