@@ -6,7 +6,6 @@
 ![Terraform](https://img.shields.io/badge/IaC-Terraform-7B42BC?logo=terraform&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-dashboard-009688?logo=fastapi&logoColor=white)
 ![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-brightgreen)
-![Terraform CI](https://github.com/wagnerbianchijr/xpe_projeto_aplicado_cia_2026/actions/workflows/terraform.yml/badge.svg)
 
 Projeto Aplicado do curso **Cloud Computing com Inteligência Artificial (XPE)**.
 
