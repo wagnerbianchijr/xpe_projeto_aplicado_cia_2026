@@ -155,6 +155,10 @@ resource "aws_instance" "web" {
     http_endpoint = "enabled"
   }
 
+  root_block_device {
+    encrypted = true
+  }
+
   user_data_replace_on_change = true
   user_data = templatefile("${path.module}/templates/web_user_data.sh.tftpl", {
     bucket   = aws_s3_bucket.web_src[0].id

@@ -1,0 +1,15 @@
+# Achados do Trivy aceitos de propósito (com justificativa).
+# Os demais achados continuam falhando o CI.
+
+# SG com egress 0.0.0.0/0 — os EC2 precisam de internet de saída para bootstrap
+# (dnf/pip, agente SSM, download do código no S3) e para alcançar o Tiger.
+AVD-AWS-0104
+
+# Subnet pública atribui IP público — por design: o EC2 do web-system é o
+# dashboard público (HTTPS/443) e o EC2-PLC usa a subnet pública para bootstrap
+# (evita custo de NAT gateway). Sem regras de entrada além do 443 no web.
+AVD-AWS-0164
+
+# S3 sem CMK (usa SSE-S3, criptografia padrão da AWS) — buckets guardam apenas o
+# zip do código entregue às instâncias; uma CMK dedicada não se justifica aqui.
+AVD-AWS-0132

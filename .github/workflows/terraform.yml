@@ -70,3 +70,4 @@ jobs:
           exit-code: "1"           # fail the check on findings
           severity: CRITICAL,HIGH
           hide-progress: true
+          trivyignores: .trivyignore   # exceções justificadas (ver o arquivo)
