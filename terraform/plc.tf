@@ -143,8 +143,8 @@ resource "aws_instance" "plc" {
   count                       = local.plc_count
   ami                         = data.aws_ssm_parameter.al2023.value
   instance_type               = var.plc_instance_type
-  subnet_id                   = aws_subnet.public[0].id
-  associate_public_ip_address = true
+  subnet_id                   = aws_subnet.private[0].id
+  associate_public_ip_address = false
   vpc_security_group_ids      = [aws_security_group.plc[0].id]
   iam_instance_profile        = aws_iam_instance_profile.plc[0].name
 

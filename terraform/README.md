@@ -11,13 +11,22 @@ credenciais). O `apply` é opcional.
 - **VPC** `10.20.0.0/16` (não colide com a Peering VPC do Tiger `11.0.0.0/16`).
 - **Subnets** públicas (`10.20.0.0/24`, `10.20.1.0/24`) e privadas (`10.20.10.0/24`,
   `10.20.11.0/24`) em `us-east-1a`/`us-east-1b`.
-- **Internet Gateway** + route table pública. Route table privada sem NAT.
+- **NAT Gateway** em subnet pública (Elastic IP) com rota default `0.0.0.0/0` na route table privada.
+  Permite que instâncias privadas acessem internet para bootstrap (pip, SSM, S3).
+- **Internet Gateway** + route table pública. Route table privada → NAT Gateway.
+- **EC2-PLC** (simulador) em subnet privada, acesso via SSM Session Manager.
+- **EC2-web** (FastAPI + Caddy) em subnet privada, exposto publicamente via **ALB**.
+- **Application Load Balancer** em subnets públicas:
+  - Listeners: 80 → 301 redirect HTTPS; 443 → targets.
+  - TLS: certificate self-signed, CN=serra-clara.local.
+  - Target Group: EC2-web (porta 443, Caddy reverse proxy).
 - **VPC peering** ao Tiger (parametrizado): accepter + rotas para `11.0.0.0/16` +
   security group de saída na porta do Postgres. Criados apenas quando
   `tiger_peering_connection_id` está preenchido.
 
 Arquivos: `versions.tf`, `providers.tf`, `variables.tf`, `network.tf`, `peering.tf`,
-`outputs.tf`.
+`plc.tf`, `web.tf`, `loadbalancer.tf`, `outputs.tf`, `templates/plc_user_data.sh.tftpl`,
+`templates/web_user_data.sh.tftpl`.
 
 ## Pré-requisitos
 
@@ -86,8 +95,9 @@ Veja `terraform.tfvars.example` para um ponto de partida.
 Uma instância EC2 atua como o **PLC** da planta: roda o simulador IIoT como serviço
 e grava no Tiger. Ligada/desligada por `plc_enabled` (default `true`).
 
-- `t3.micro`, Amazon Linux 2023, subnet pública, IMDSv2 obrigatório.
-- Acesso via **SSM Session Manager** (sem chave SSH).
+- `t3.micro`, Amazon Linux 2023, **subnet privada**, IMDSv2 obrigatório.
+- Acesso via **SSM Session Manager** (sem chave SSH, sem IP público).
+- Saída à internet via NAT Gateway (para pip, SSM, S3).
 - **Pré-requisito (fora do Terraform):** o `DATABASE_URL` precisa existir no SSM
   Parameter Store como SecureString:
 
@@ -110,9 +120,60 @@ aws ssm start-session --target <plc_instance_id> --region us-east-1 --profile bi
 # na instância: systemctl status plc ; journalctl -u plc -f
 ```
 
+## EC2-web (dashboard)
+
+Uma instância EC2 roda o **web-system** (FastAPI + Caddy HTTPS) e é exposta publicamente via ALB.
+
+- `t3.micro`, Amazon Linux 2023, **subnet privada**, IMDSv2 obrigatório.
+- Acesso via **SSM Session Manager** (sem IP público direto).
+- Saída à internet via NAT Gateway.
+- **Exposição pública:** ALB (Application Load Balancer) em HTTPS/443 com cert self-signed.
+- Uvicorn roda em `127.0.0.1:8000` (loopback); Caddy reverse proxy em `0.0.0.0:443`.
+
+**Código:** user_data baixa o código do web-system do S3, instala deps, cria venv, sobe serviço `websystem` (systemd).
+
+**Acessar dashboard:**
+```bash
+# ALB DNS name (saída do terraform: alb_url)
+https://serra-clara-alb-....elb.amazonaws.com/
+```
+
+**Health check:** ALB verifica `/` a cada 30s. Se EC2 ficar unhealthy, ALB remove do target group.
+
+## Custagem (quando ativado)
+
+| Recurso | Custo/hora | Custo/mês |
+|---|---|---|
+| NAT Gateway | $0.045 | ~$32 |
+| ALB | $0.0225 | ~$16 |
+| EC2-PLC (t3.micro) | $0.0104 | ~$7.50 |
+| EC2-web (t3.micro) | $0.0104 | ~$7.50 |
+| **Total** (2 EC2s) | ~$0.10 | ~$63 |
+
+Data transfer (NAT egress): $0.045/GB.
+
+**Desativar para economizar:** `plc_enabled = false`, `web_enabled = false` em `terraform.tfvars`.
+
+## Redeploy Rápido
+
+VPC, subnets, peering, security groups permanem (sem custo). Para reativar:
+
+```bash
+# terraform.tfvars
+plc_enabled = true
+web_enabled = true
+
+# Aplicar
+terraform apply
+
+# Aguardar ~5-10 min (status checks, user_data, ALB health)
+# Dashboard: https://serra-clara-alb-....elb.amazonaws.com/
+```
+
 ## Notas
 
-- **Sem NAT gateway** (evita custo); o acesso ao Tiger é privado via peering.
-- O **EC2-PLC** roda dentro desta VPC e grava no Tiger; o web-system continua
-  conectando ao Tiger pela internet pública (fora da VPC).
+- **NAT Gateway** permite que instâncias privadas façam bootstrap (pip, SSM).
+- **ALB** expõe o web-system publicamente em HTTPS; EC2 permanece privado.
+- **EC2s privadas** — acesso via SSM Session Manager (sem SSH key).
+- **Database** — subnet privada, acesso privado via peering (não exposto).
 - State local (sem backend remoto), adequado à entrega demonstrativa.
